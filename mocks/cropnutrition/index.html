@@ -1,0 +1,183 @@
+<html>
+<head>
+    <link href="css/site.css" rel="stylesheet">
+    <link href="css/icons.css" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="js/jquery.finger.js"></script>
+    <script src="js/background.js"></script>
+    <script src="js/scrollbar.js"></script>
+    <script src="js/viewport.js"></script>
+    <script src="js/page.js"></script>
+</head>
+<body>
+
+<div class="vp">
+    <div class="spinner">
+        <img src="img/spinner.gif" width="32" height="32">
+    </div>
+</div>
+<div class="bg"></div>
+<div class="vp-control"></div>
+
+<div class="controls">
+    <a class="left"><i class="icon icon-left-open-big"></i></a>
+    <a class="right"><i class="icon right icon-right-open-big"></i></a>
+</div>
+
+<script>
+
+    (function(){
+
+        var page = 0;
+        var pages = ['home', 'potassium', 'secondary', 'specific'];
+
+        var bgs = {
+            mb1: {
+                url: 'img/backgrounds/macbook1.png',
+                element: '.bg',
+                width: 1200,
+                height: 800,
+                viewport: {
+                    top: 297,
+                    left: 331,
+                    width: 532,
+                    height: 333,
+                    element: '.vp',
+                    control: '.vp-control'
+                }
+            },
+            mb2: {
+                url: 'img/backgrounds/macbook2.png',
+                element: '.bg',
+                width: 890,
+                height: 593,
+                viewport: {
+                    top: 220,
+                    left: 245,
+                    width: 396,
+                    height: 248,
+                    element: '.vp',
+                    control: '.vp-control'
+                }
+            },
+            tb: {
+                url: 'img/backgrounds/thunderbolt1.png',
+                element: '.bg',
+                width: 1000,
+                height: 773,
+                viewport: {
+                    top: 65,
+                    left: 101,
+                    width: 800,
+                    height: 476,
+                    element: '.vp',
+                    control: '.vp-control'
+                }
+            }
+        };
+
+        var fgs = {
+            home: {
+                url: 'img/foregrounds/efu-home.jpg',
+                width: 500,
+                height: 1079
+            },
+            potassium: {
+                url: 'img/foregrounds/efu-potassium.jpg',
+                width: 500,
+                height: 2682
+            },
+            secondary: {
+                url: 'img/foregrounds/efu-secondary-nutrients.jpg',
+                width: 500,
+                height: 3608
+            },
+            specific: {
+                url: 'img/foregrounds/efu-site-specific.jpg',
+                width: 500,
+                height: 1753
+            }
+        };
+
+        var bg = new Background(bgs.mb2);
+        var $control = bg.viewport.$control;
+
+
+        _loadPage();
+
+        bg.load().then(function(){
+            bg.viewport.$element.show();
+        });
+
+
+
+        $(window).on('resize', bg.position.bind(bg));
+
+        $control.on('mousewheel DOMMouseScroll', _onMouseWheel.bind(this));
+
+        if (_is_touch_device()) { $control.on('drag', _onDrag); }
+
+        $control.on('click', _loadPage);
+
+
+        /**
+         * Handle touch drag events
+         * @param {Event} e
+         */
+        function _onDrag(e) {
+            var dist = 10;
+            if (e.orientation) {
+                dist = (e.direction > 0) ? dist : -dist;
+                bg.viewport.page.scrollByPx(dist);
+                e.preventDefault();
+            }
+        }
+
+        /**
+         * Handle mouse wheel scroll events
+         * @param {Event} e
+         */
+        function _onMouseWheel(e) {
+            var dist = 50;
+            dist = (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) ? dist : -dist;
+            bg.viewport.page.scrollByPx(dist);
+            e.preventDefault();
+        }
+
+
+        /**
+         * Load the next page, nothing fancy
+         * @private
+         */
+        function _loadPage() {
+
+            bg.viewport.clear();
+
+            setTimeout(function(){
+
+                if (!pages[page]) { page = 0; }
+                bg.viewport.loadPage(fgs[pages[page]]);
+                page++;
+
+            }, 750);
+
+        }
+
+        /**
+         * Determine if device supports touch events
+         * @returns {boolean}
+         * @private
+         */
+        function _is_touch_device() {
+            return (('ontouchstart' in window)
+            || (navigator.maxTouchPoints > 0)
+            || (navigator.msMaxTouchPoints > 0));
+        }
+
+
+    }());
+
+</script>
+
+</body>
+</html>
